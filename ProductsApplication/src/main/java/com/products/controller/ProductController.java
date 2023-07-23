@@ -35,12 +35,12 @@ public class ProductController {
     }
 
     @PostMapping(value = "/products/add")
-    public ResponseEntity<String> addProduct(@RequestBody ProductDTO productDTO) {
+    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO) {
 
         /** Null check RequestBody fields
          * @param ProductDTO
          */
-        nullCheck(productDTO);
+        nullCheckProductDTO(productDTO);
 
         String productReference = generateUniqueReference();
 
@@ -61,7 +61,8 @@ public class ProductController {
             this.ingredientRepository.save(ingredientToSave);
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(productReference);
+        ProductDTO productDTOSaved = productDTO;
+        return ResponseEntity.status(HttpStatus.CREATED).body(productDTOSaved);
     }
 
     @PutMapping(value = "/products/update/{id}")
@@ -128,6 +129,24 @@ public class ProductController {
         return this.ingredientRepository.findAll();
     }
 
+    @PostMapping(value = "/ingredients/add")
+    public ResponseEntity<Ingredient> addIngredient(@RequestBody Ingredient ingredient) {
+
+        /** Null check RequestBody fields
+         * @param Ingredient
+         */
+        nullCheckIngredient(ingredient);
+
+        Ingredient ingredientToSave = new Ingredient();
+        ingredientToSave.setProductReference(ingredient.getProductReference());
+        ingredientToSave.setName(ingredient.getName());
+        ingredientToSave.setQuantity(ingredient.getQuantity());
+        ingredientToSave.setPrice(ingredient.getPrice());
+
+        Ingredient ingredientSaved = this.ingredientRepository.save(ingredientToSave);
+        return ResponseEntity.status(HttpStatus.CREATED).body(ingredientSaved);
+    }
+
     @PutMapping(value = "/ingredients/search")
     public Iterable<Ingredient> searchIngredient(
             @RequestParam(name = "productReference", required = false) String productReference,
@@ -167,7 +186,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(savedIngredient).getBody();
     }
 
-    private void nullCheck(ProductDTO productDTO) {
+    private void nullCheckProductDTO(ProductDTO productDTO) {
         if (productDTO == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product cannot be null");
         }
@@ -191,16 +210,34 @@ public class ProductController {
         // Ingredient checks
         for (IngredientDTO ingredientDTO : productDTO.getIngredientDTOs()) {
             if (ingredientDTO.getName() == null || ingredientDTO.getName().isEmpty()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product name cannot be empty");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient name cannot be empty");
             }
 
             if (ingredientDTO.getQuantity() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product quantity cannot be null");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient quantity cannot be null");
             }
 
             if (ingredientDTO.getPrice() == null || ingredientDTO.getPrice().isNaN()) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product price cannot be null");
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient price cannot be null");
             }
+        }
+    }
+
+    private void nullCheckIngredient(Ingredient ingredient) {
+        if (ingredient.getProductReference() == null || ingredient.getProductReference().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient product reference cannot be empty");
+        }
+
+        if (ingredient.getName() == null || ingredient.getName().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient name cannot be empty");
+        }
+
+        if (ingredient.getQuantity() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient quantity cannot be null");
+        }
+
+        if (ingredient.getPrice() == null || ingredient.getPrice().isNaN()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient price cannot be null");
         }
     }
 
@@ -212,14 +249,58 @@ public class ProductController {
     }
 
     private List<Product> fetchProducts(String name, Integer quantity, Float price, Category category, String productReference) {
-        // Implement logic to fetch products based on the search criteria
+        Iterable<Product> productsIterable = this.productRepository.findAll();
+        List<Product> productsList = new ArrayList<>();
+        for (Product product : productsIterable) {
+            productsList.add(product);
+        }
 
-        return new ArrayList<>();
+        if (name != null) {
+            productsList.removeIf(product -> !product.getName().toLowerCase().contains(name.toLowerCase()));
+        }
+
+        if (quantity != null) {
+            productsList.removeIf(product -> !product.getQuantity().equals(quantity));
+        }
+
+        if (price != null) {
+            productsList.removeIf(product -> !product.getPrice().equals(price));
+        }
+
+        if (category != null) {
+            productsList.removeIf(product -> !product.getCategory().equals(category));
+        }
+
+        if (productReference != null) {
+            productsList.removeIf(product -> !product.getProductReference().toLowerCase().contains(productReference.toLowerCase()));
+        }
+
+        return productsList;
     }
 
     private List<Ingredient> fetchIngredients(String productReference, String name, Integer quantity, Float price) {
-        // Implement logic to fetch products based on the search criteria
+        Iterable<Ingredient> ingredientsIterable = this.ingredientRepository.findAll();
+        List<Ingredient> ingredientsList = new ArrayList<>();
+        for (Ingredient ingredient : ingredientsIterable) {
+            ingredientsList.add(ingredient);
+        }
 
-        return new ArrayList<>();
+        if (productReference != null) {
+            ingredientsList.removeIf(ingredient -> !ingredient.getProductReference().toLowerCase().contains(productReference.toLowerCase()));
+        }
+
+        if (name != null) {
+            ingredientsList.removeIf(ingredient -> !ingredient.getName().toLowerCase().contains(name.toLowerCase()));
+        }
+
+        if (quantity != null) {
+            ingredientsList.removeIf(ingredient -> !ingredient.getQuantity().equals(quantity));
+        }
+
+        if (price != null) {
+            ingredientsList.removeIf(ingredient -> !ingredient.getPrice().equals(price));
+        }
+
+        return ingredientsList;
     }
 }
