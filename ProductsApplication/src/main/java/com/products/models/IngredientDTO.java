@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Ingredient {
+public class IngredientDTO {
     private String name;
-    private int quantity;
-    private float price;
+    private Integer quantity;
+    private Float price;
 }

@@ -1,6 +1,6 @@
 package com.products.entities;
 
-import com.products.models.Category;
+import com.sun.istack.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,11 +11,15 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "PRODUCT")
-public class Product {
+@Table(name = "INGREDIENT")
+public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
+    @Column(name = "PRODUCT_REFERENCE")
+    private String productReference;
 
     @Column(name = "NAME")
     private String name;
@@ -25,11 +29,4 @@ public class Product {
 
     @Column(name = "PRICE")
     private Float price;
-
-    @Column(name = "CATEGORY")
-    @Enumerated(value = EnumType.STRING)
-    private Category category;
-
-    @Column(name = "PRODUCT_REFERENCE")
-    private String productReference;
 }
