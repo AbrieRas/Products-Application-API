@@ -97,7 +97,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(savedProduct).getBody();
     }
 
-    @PutMapping(value = "/products/search")
+    @GetMapping(value = "/products/search")
     public Iterable<Product> searchProduct(
             @RequestParam(name = "name", required = false) String name,
             @RequestParam(name = "quantity", required = false) Integer quantity,
@@ -147,7 +147,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ingredientSaved);
     }
 
-    @PutMapping(value = "/ingredients/search")
+    @GetMapping(value = "/ingredients/search")
     public Iterable<Ingredient> searchIngredient(
             @RequestParam(name = "productReference", required = false) String productReference,
             @RequestParam(name = "name", required = false) String name,
