@@ -5,11 +5,10 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ProductDTO {
-    private Long id;
+public class IngredientAddDTO {
+    private Integer id;
+    private String productReference;
     private String name;
     private Integer quantity;
     private Float price;
-    private Category category;
-    private IngredientDTO[] ingredientDTOs;
 }

@@ -2,9 +2,7 @@ package com.products.controller;
 
 import com.products.entities.Ingredient;
 import com.products.entities.Product;
-import com.products.models.Category;
-import com.products.models.IngredientDTO;
-import com.products.models.ProductDTO;
+import com.products.models.*;
 import com.products.repositories.IngredientRepository;
 import com.products.repositories.ProductRepository;
 import org.springframework.http.HttpStatus;
@@ -12,12 +10,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
+import java.sql.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+@RequestMapping(value = "/products")
 @RestController
 public class ProductController {
     private final ProductRepository productRepository;
@@ -28,44 +29,72 @@ public class ProductController {
         this.ingredientRepository = ingredientRepository;
     }
 
-    @GetMapping(value = "/products")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public Iterable<Product> getProducts() {
         return this.productRepository.findAll();
     }
 
-    @PostMapping(value = "/products/add")
-    public ResponseEntity<ProductDTO> addProduct(@RequestBody ProductDTO productDTO) {
+    @GetMapping(value = "/search")
+    public Iterable<Product> searchProduct(
+            @RequestParam(name = "id", required = false) Integer id,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "quantity", required = false) Integer quantity,
+            @RequestParam(name = "price", required = false) Float price,
+            @RequestParam(name = "category", required = false) Category category,
+            @RequestParam(name = "productReference", required = false) String productReference
+    ) {
+        List<Product> searchResults = fetchProducts(id, name, quantity, price, category, productReference);
+        return searchResults;
+    }
+
+    @PostMapping(value = "/add")
+    public ResponseEntity<ProductAddDTO> addProduct(@RequestBody ProductAddDTO productAddDTO) {
 
         /** Null check RequestBody fields
-         * @param ProductDTO
+         * @param ProductAddDTO
          */
-        nullCheckProductDTO(productDTO);
+        nullCheckProductDTO(productAddDTO);
 
         String productReference = generateUniqueReference();
 
         Product productToSave = new Product();
-        productToSave.setName(productDTO.getName());
-        productToSave.setQuantity(productDTO.getQuantity());
-        productToSave.setPrice(productDTO.getPrice());
-        productToSave.setCategory(productDTO.getCategory());
+        productToSave.setName(productAddDTO.getName());
+        productToSave.setQuantity(productAddDTO.getQuantity());
+        productToSave.setPrice(productAddDTO.getPrice());
+        productToSave.setCategory(productAddDTO.getCategory());
         productToSave.setProductReference(productReference);
-        this.productRepository.save(productToSave);
+        Product savedProduct = this.productRepository.save(productToSave);
 
-        for (IngredientDTO ingredientDTO : productDTO.getIngredientDTOs()) {
+        IngredientAddDTO[] responseIngredients = new IngredientAddDTO[productAddDTO.getIngredients().length];
+        int ingredientCounter = 0;
+
+        for (IngredientAddDTO ingredientAddDTO : productAddDTO.getIngredients()) {
             Ingredient ingredientToSave = new Ingredient();
             ingredientToSave.setProductReference(productReference);
-            ingredientToSave.setName(ingredientDTO.getName());
-            ingredientToSave.setQuantity(ingredientDTO.getQuantity());
-            ingredientToSave.setPrice(ingredientDTO.getPrice());
-            this.ingredientRepository.save(ingredientToSave);
+            ingredientToSave.setName(ingredientAddDTO.getName());
+            ingredientToSave.setQuantity(ingredientAddDTO.getQuantity());
+            ingredientToSave.setPrice(ingredientAddDTO.getPrice());
+            Ingredient savedIngredient = this.ingredientRepository.save(ingredientToSave);
+
+            responseIngredients[ingredientCounter] = new IngredientAddDTO(
+                    savedIngredient.getId(),
+                    savedIngredient.getProductReference(),
+                    savedIngredient.getName(),
+                    savedIngredient.getQuantity(),
+                    savedIngredient.getPrice()
+            );
+
+            ingredientCounter++;
         }
 
-        ProductDTO productDTOSaved = productDTO;
-        return ResponseEntity.status(HttpStatus.CREATED).body(productDTOSaved);
+        ProductAddDTO responseProduct = productAddDTO;
+        responseProduct.setId(savedProduct.getId());
+        responseProduct.setIngredients(responseIngredients);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseProduct);
     }
 
-    @PutMapping(value = "/products/update/{id}")
+    @PutMapping(value = "/update/{id}")
     public Product updateProduct(@PathVariable(value = "id") Integer id, @RequestBody Product product) {
         Optional<Product> productOptional = this.productRepository.findById(id);
         if (!productOptional.isPresent()) {
@@ -73,43 +102,14 @@ public class ProductController {
         }
 
         Product productToUpdate = productOptional.get();
-        if (product.getName() != null) {
-            productToUpdate.setName(product.getName());
-        }
-
-        if (product.getQuantity() != null) {
-            productToUpdate.setQuantity(product.getQuantity());
-        }
-
-        if (product.getPrice() != null) {
-            productToUpdate.setPrice(product.getPrice());
-        }
-
-        if (product.getCategory() != null) {
-            productToUpdate.setCategory(product.getCategory());
-        }
-
-        if (product.getProductReference() != null) {
-            productToUpdate.setProductReference(product.getProductReference());
-        }
-
-        Product savedProduct = this.productRepository.save(productToUpdate);
+        Product productToSave = updateProductParams(productToUpdate, product);
+        System.out.println("productToSave.getId():" + productToSave.getId());
+        Product savedProduct = this.productRepository.save(productToSave);
         return ResponseEntity.status(HttpStatus.OK).body(savedProduct).getBody();
     }
 
-    @GetMapping(value = "/products/search")
-    public Iterable<Product> searchProduct(
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "quantity", required = false) Integer quantity,
-            @RequestParam(name = "price", required = false) Float price,
-            @RequestParam(name = "category", required = false) Category category,
-            @RequestParam(name = "productReference", required = false) String productReference
-    ) {
-        List<Product> searchResults = fetchProducts(name, quantity, price, category, productReference);
-        return searchResults;
-    }
-
-    @DeleteMapping(value = "/products/remove/{id}")
+    @DeleteMapping(value = "/remove/{id}")
+    @Transactional
     public Product deleteProduct(@PathVariable Integer id) {
         Optional<Product> productOptional = this.productRepository.findById(id);
         if (!productOptional.isPresent()) {
@@ -123,121 +123,40 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productToDelete).getBody();
     }
 
-    @GetMapping(value = "/ingredients")
-    @ResponseStatus(HttpStatus.OK)
-    public Iterable<Ingredient> getIngredients() {
-        return this.ingredientRepository.findAll();
-    }
-
-    @PostMapping(value = "/ingredients/add")
-    public ResponseEntity<Ingredient> addIngredient(@RequestBody Ingredient ingredient) {
-
-        /** Null check RequestBody fields
-         * @param Ingredient
-         */
-        nullCheckIngredient(ingredient);
-
-        Ingredient ingredientToSave = new Ingredient();
-        ingredientToSave.setProductReference(ingredient.getProductReference());
-        ingredientToSave.setName(ingredient.getName());
-        ingredientToSave.setQuantity(ingredient.getQuantity());
-        ingredientToSave.setPrice(ingredient.getPrice());
-
-        Ingredient ingredientSaved = this.ingredientRepository.save(ingredientToSave);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ingredientSaved);
-    }
-
-    @GetMapping(value = "/ingredients/search")
-    public Iterable<Ingredient> searchIngredient(
-            @RequestParam(name = "productReference", required = false) String productReference,
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "quantity", required = false) Integer quantity,
-            @RequestParam(name = "price", required = false) Float price
-    ) {
-        List<Ingredient> searchResults = fetchIngredients(productReference, name, quantity, price);
-        return searchResults;
-    }
-
-    @PutMapping(value = "/ingredients/update/{id}")
-    public Ingredient updateIngredient(@PathVariable(value = "id") Integer id, @RequestBody Ingredient ingredient) {
-        Optional<Ingredient> ingredientOptional = this.ingredientRepository.findById(id);
-        if (!ingredientOptional.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Ingredient id not found");
-        }
-
-        Ingredient ingredientToUpdate = ingredientOptional.get();
-        if (ingredient.getProductReference() != null) {
-            ingredientToUpdate.setProductReference(ingredient.getProductReference());
-        }
-
-        if (ingredient.getName() != null) {
-            ingredientToUpdate.setName(ingredient.getName());
-        }
-
-        if (ingredient.getQuantity() != null) {
-            ingredientToUpdate.setQuantity(ingredient.getQuantity());
-        }
-
-        if (ingredient.getPrice() != null) {
-            ingredientToUpdate.setPrice(ingredient.getPrice());
-        }
-
-        Ingredient savedIngredient = this.ingredientRepository.save(ingredientToUpdate);
-        return ResponseEntity.status(HttpStatus.OK).body(savedIngredient).getBody();
-    }
-
-    private void nullCheckProductDTO(ProductDTO productDTO) {
-        if (productDTO == null) {
+    private void nullCheckProductDTO(ProductAddDTO productAddDTO) {
+        if (productAddDTO == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product cannot be null");
         }
 
-        if (productDTO.getName() == null || productDTO.getName().isEmpty()) {
+        if (productAddDTO.getName() == null || productAddDTO.getName().isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product name cannot be empty");
         }
 
-        if (productDTO.getQuantity() == null) {
+        if (productAddDTO.getQuantity() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product quantity cannot be null");
         }
 
-        if (productDTO.getPrice() == null || productDTO.getPrice().isNaN()) {
+        if (productAddDTO.getPrice() == null || productAddDTO.getPrice().isNaN()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product price cannot be null");
         }
 
-        if (productDTO.getCategory() == null) {
+        if (productAddDTO.getCategory() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product category cannot be null");
         }
 
         // Ingredient checks
-        for (IngredientDTO ingredientDTO : productDTO.getIngredientDTOs()) {
-            if (ingredientDTO.getName() == null || ingredientDTO.getName().isEmpty()) {
+        for (IngredientAddDTO ingredientAddDTO : productAddDTO.getIngredients()) {
+            if (ingredientAddDTO.getName() == null || ingredientAddDTO.getName().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient name cannot be empty");
             }
 
-            if (ingredientDTO.getQuantity() == null) {
+            if (ingredientAddDTO.getQuantity() == null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient quantity cannot be null");
             }
 
-            if (ingredientDTO.getPrice() == null || ingredientDTO.getPrice().isNaN()) {
+            if (ingredientAddDTO.getPrice() == null || ingredientAddDTO.getPrice().isNaN()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient price cannot be null");
             }
-        }
-    }
-
-    private void nullCheckIngredient(Ingredient ingredient) {
-        if (ingredient.getProductReference() == null || ingredient.getProductReference().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient product reference cannot be empty");
-        }
-
-        if (ingredient.getName() == null || ingredient.getName().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient name cannot be empty");
-        }
-
-        if (ingredient.getQuantity() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient quantity cannot be null");
-        }
-
-        if (ingredient.getPrice() == null || ingredient.getPrice().isNaN()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ingredient price cannot be null");
         }
     }
 
@@ -248,11 +167,15 @@ public class ProductController {
         return reference;
     }
 
-    private List<Product> fetchProducts(String name, Integer quantity, Float price, Category category, String productReference) {
+    private List<Product> fetchProducts(Integer id, String name, Integer quantity, Float price, Category category, String productReference) {
         Iterable<Product> productsIterable = this.productRepository.findAll();
         List<Product> productsList = new ArrayList<>();
         for (Product product : productsIterable) {
             productsList.add(product);
+        }
+
+        if (id != null) {
+            productsList.removeIf(product -> !product.getId().equals(id));
         }
 
         if (name != null) {
@@ -278,29 +201,27 @@ public class ProductController {
         return productsList;
     }
 
-    private List<Ingredient> fetchIngredients(String productReference, String name, Integer quantity, Float price) {
-        Iterable<Ingredient> ingredientsIterable = this.ingredientRepository.findAll();
-        List<Ingredient> ingredientsList = new ArrayList<>();
-        for (Ingredient ingredient : ingredientsIterable) {
-            ingredientsList.add(ingredient);
+    private Product updateProductParams(Product productToUpdate, Product userProduct) {
+        if (userProduct.getName() != null) {
+            productToUpdate.setName(userProduct.getName());
         }
 
-        if (productReference != null) {
-            ingredientsList.removeIf(ingredient -> !ingredient.getProductReference().toLowerCase().contains(productReference.toLowerCase()));
+        if (userProduct.getQuantity() != null) {
+            productToUpdate.setQuantity(userProduct.getQuantity());
         }
 
-        if (name != null) {
-            ingredientsList.removeIf(ingredient -> !ingredient.getName().toLowerCase().contains(name.toLowerCase()));
+        if (userProduct.getPrice() != null) {
+            productToUpdate.setPrice(userProduct.getPrice());
         }
 
-        if (quantity != null) {
-            ingredientsList.removeIf(ingredient -> !ingredient.getQuantity().equals(quantity));
+        if (userProduct.getCategory() != null) {
+            productToUpdate.setCategory(userProduct.getCategory());
         }
 
-        if (price != null) {
-            ingredientsList.removeIf(ingredient -> !ingredient.getPrice().equals(price));
+        if (userProduct.getProductReference() != null) {
+            productToUpdate.setProductReference(userProduct.getProductReference());
         }
 
-        return ingredientsList;
+        return productToUpdate;
     }
 }

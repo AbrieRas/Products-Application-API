@@ -1,0 +1,29 @@
+[PRODUCTS]
+
+-> GET
+curl "localhost:4001/products" | json_pp
+curl "localhost:4001/products/search?id=40" | json_pp
+
+-> POST
+curl -X POST -H "Content-Type: application/json" -d "{\"name\":\"Sample Product\",\"quantity\":\"10\",\"price\":\"25.99\",\"category\":\"ELECTRONICS\",\"ingredients\":[{\"name\":\"Ingredient 1\",\"quantity\":\"2\",\"price\":\"5.99\"},{\"name\":\"Ingredient 2\",\"quantity\":\"1\",\"price\":\"3.49\"}]}" "localhost:4001/products/add" | json_pp
+
+-> PUT
+curl -X PUT -H "Content-Type: application/json" -d "{ \"quantity\":\"5\" }" "localhost:4001/products/update/92" | json_pp
+
+-> DELETE
+curl -X DELETE "localhost:4001/products/remove/92" | json_pp
+
+[INGREDIENTS]
+
+-> GET
+curl "localhost:4001/ingredients" | json_pp
+curl "localhost:4001/ingredients/search?price=81.29" | json_pp
+
+-> POST
+curl -X POST -H "Content-Type: application/json" -d "{\"productReference\":\"abc\",\"name\":\"Ingredient 1\",\"quantity\":\"2\",\"price\":\"5.99\"}" "localhost:4001/ingredients/add" | json_pp
+
+-> PUT
+curl -X PUT -H "Content-Type: application/json" -d "{ \"quantity\":\"5\",\"price\":\"4.95\" }" "localhost:4001/ingredients/update/501" | json_pp
+
+-> DELETE
+curl -X DELETE "localhost:4001/ingredients/remove/501" | json_pp

@@ -1,0 +1,23 @@
+#header-content,
+#footer-content {
+    display: flex;
+    justify-content: center;
+}
+
+#body-content {
+    margin: 5px;
+}
+
+#header-content.button,
+#footer-content.button {
+    flex: 1;
+}
+
+.button {
+    padding: 20px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    background-color: lightblue;
+    text-align: center;
+    font-weight: bold;
+}

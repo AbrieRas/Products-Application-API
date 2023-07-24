@@ -14,8 +14,8 @@ import javax.persistence.*;
 @Table(name = "INGREDIENT")
 public class Ingredient {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @NotNull
     @Column(name = "PRODUCT_REFERENCE")
