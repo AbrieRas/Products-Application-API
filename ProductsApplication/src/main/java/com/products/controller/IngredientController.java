@@ -1,7 +1,6 @@
 package com.products.controller;
 
 import com.products.entities.Ingredient;
-import com.products.entities.Product;
 import com.products.repositories.IngredientRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

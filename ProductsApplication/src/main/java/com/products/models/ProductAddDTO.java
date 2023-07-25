@@ -12,4 +12,5 @@ public class ProductAddDTO {
     private Float price;
     private Category category;
     private IngredientAddDTO[] ingredients;
+    private String productReference;
 }

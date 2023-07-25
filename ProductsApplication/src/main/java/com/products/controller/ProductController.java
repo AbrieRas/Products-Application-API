@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import java.sql.Array;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +89,7 @@ public class ProductController {
 
         ProductAddDTO responseProduct = productAddDTO;
         responseProduct.setId(savedProduct.getId());
+        responseProduct.setProductReference(productReference);
         responseProduct.setIngredients(responseIngredients);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseProduct);
     }
@@ -103,7 +103,6 @@ public class ProductController {
 
         Product productToUpdate = productOptional.get();
         Product productToSave = updateProductParams(productToUpdate, product);
-        System.out.println("productToSave.getId():" + productToSave.getId());
         Product savedProduct = this.productRepository.save(productToSave);
         return ResponseEntity.status(HttpStatus.OK).body(savedProduct).getBody();
     }
