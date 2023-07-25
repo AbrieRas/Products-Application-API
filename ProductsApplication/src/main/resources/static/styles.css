@@ -6,6 +6,11 @@
 
 #body-content {
     margin: 5px;
+    text-align: center;
+}
+
+.content-container {
+    display: flex;
 }
 
 #header-content.button,
@@ -21,3 +26,57 @@
     text-align: center;
     font-weight: bold;
 }
+
+.button:hover {
+    color: white;
+    border-color: black;
+}
+
+.left-div,
+.right-div {
+    flex: 1;
+}
+
+.left-div {
+    background-color: lightblue;
+}
+
+.right-div {
+    background-color: lightgreen;
+}
+
+#message {
+    margin-left: 10%;
+    width: 80%;
+    height: 50px;
+    background-color: #65c8e8;
+    border: 2px dashed black;
+}
+
+.input-name {
+    width: 300px;
+}
+
+.input-quantity {
+    width: 30px;
+}
+
+.input-price {
+    width: 70px;
+}
+
+hr {
+    width: 80%;
+    border-color: black;
+}
+
+#submit-product-button {
+    border: 3px groove;
+}
+
+#submit-product-button:hover {
+    border: 3px groove white;
+}
+
+/* Below classes are for JS */
+.generated-input-name, .generated-input-quantity, .generated-input-price {}

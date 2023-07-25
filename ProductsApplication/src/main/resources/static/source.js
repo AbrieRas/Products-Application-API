@@ -18,21 +18,24 @@ const addEventListenersToButtons = () => {
     addRedirectListenersToButton(reportBugButtonObj);
 };
 
-const addRedirectListenersToButton = (obj) => {
-    obj.element.addEventListener('click',() => {
-        const targetUrl = obj.url;
+const addRedirectListenersToButton = (buttonObj) => {
+    buttonObj.element.addEventListener('click',() => {
+        const targetUrl = buttonObj.url;
         window.location.href = targetUrl;
     });
 };
 
-// Execute on startup
-addEventListenersToButtons();
-
-document.addEventListener("DOMContentLoaded", function () {
-    const desiredHTMLFile = "report.html";
+document.addEventListener("DOMContentLoaded",() => {
+    const indexPageURL = "index.html";
+    const reportsPageURL = "reports.html";
     const currentURL = window.location.href;
 
-    if (currentURL.endsWith(desiredHTMLFile)) {
+    // Execute on startup
+    addEventListenersToButtons();
+    if (currentURL.endsWith(indexPageURL)) {
+        populateListbox();
+        document.getElementById("listbox-ingredients").addEventListener("change", generateIngredientCode);
+    } else if (currentURL.endsWith(reportsPageURL)) {
         addTestEventListenersToButtons();
     }
 });
@@ -205,3 +208,37 @@ const addTestEventListenersToButtons = () => {
           });
     });
 };
+
+const populateListbox = () => {
+    const listbox = document.getElementById("listbox-ingredients");
+
+    for (let i = 1; i <= 10; i++) {
+        const option = document.createElement("option");
+        option.text = i;
+        option.value = i;
+        listbox.add(option);
+    }
+}
+
+const generateIngredientCode = () => {
+    const selectedValue = document.getElementById("listbox-ingredients").value;
+    const generateIngredientSection = document.getElementById("generate-ingredient-section");
+    generateIngredientSection.innerHTML = "";
+
+    for (let i = 0; i < selectedValue; i++) {
+        generateIngredientSection.innerHTML += generateIngredient(i);
+    }
+}
+
+const generateIngredient = (index) => {
+    index++;
+    return `<hr/><br/>
+        <label for="input-ingredient-name-${index}">Ingredient ${index} name:</label>
+        <input class="input-name generated-input-name" type="text" name="input-ingredient-name-${index}" id="input-ingredient-name-${index}"/>
+        <br/><br/>
+        <label for="input-ingredient-quantity-${index}">Quantity:</label>
+        <input class="input-quantity generated-input-quantity" type="text" name="input-ingredient-quantity-${index}" id="input-ingredient-quantity-${index}"/>
+        <label for="input-ingredient-price-${index}">Price:</label>
+        <input class="input-price generated-input-price" type="text" name="input-ingredient-price-${index}" id="input-ingredient-price-${index}"/>
+        <br/><br/>`;
+}

@@ -15,6 +15,43 @@
         <!-- BODY CONTENT -->
         <div id="body-content">
             <h3>Index Page</h3>
+            <div class="content-container">
+                <div class="left-div">
+                    <p id="message">Information will be displayed here.</p>
+                    <hr/><br/>
+
+                    <label for="input-product-name">Product name:</label>
+                    <input class="input-name" type="text" name="input-product-name" id="input-product-name"/>
+                    <br/><br/>
+
+                    <label for="input-product-quantity">Quantity:</label>
+                    <input class="input-quantity" type="text" name="input-product-quantity" id="input-product-quantity"/>
+                    <label for="input-product-price">Price:</label>
+                    <input class="input-price" type="text" name="input-product-price" id="input-product-price"/>
+                    <br/><br/>
+                </div>
+                <div class="right-div">
+                    <br/>
+                    <label for="listbox-ingredients">Choose amount of ingredients:</label>
+                    <select name="listbox-ingredients" id="listbox-ingredients">
+                    </select>
+
+                    <div id="generate-ingredient-section">
+                        <hr/><br/>
+                        <label for="input-ingredient-name-1">Ingredient 1 name:</label>
+                        <input class="input-name generated-input-name" type="text" name="input-ingredient-name-1" id="input-ingredient-name-1"/>
+                        <br/><br/>
+                        <label for="input-ingredient-quantity-1">Quantity:</label>
+                        <input class="input-quantity generated-input-quantity" type="text" name="input-ingredient-quantity-1" id="input-ingredient-quantity-1"/>
+                        <label for="input-ingredient-price-1">Price:</label>
+                        <input class="input-price generated-input-price" type="text" name="input-ingredient-price-1" id="input-ingredient-price-1"/>
+                        <br/><br/>
+                    </div>
+
+                    <br/>
+                    <div id="submit-product-button" class="button">Add Product with Ingredients</div>
+                </div>
+            </div>
         </div>
 
         <!-- FOOTER CONTENT -->
