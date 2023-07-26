@@ -13,6 +13,16 @@
     display: flex;
 }
 
+.body-column {
+    flex: 1;
+    margin: 5px;
+}
+
+.inner-report-section {
+    text-align: left;
+    margin: 5px;
+}
+
 #header-content.button,
 #footer-content.button {
     flex: 1;
@@ -45,12 +55,24 @@
     background-color: lightgreen;
 }
 
-#message {
+#message, #report-output {
     margin-left: 10%;
     width: 80%;
-    height: 50px;
     background-color: #65c8e8;
     border: 2px dashed black;
+    overflow-x: auto;
+    overflow-y: auto;
+    white-space: nowrap;
+}
+
+#message {
+    height: 50px;
+}
+
+#report-output {
+    height: 720px;
+    max-width: 400px;
+    text-align: left;
 }
 
 .input-name {

@@ -15,19 +15,140 @@
         <!-- BODY CONTENT -->
         <div id="body-content">
             <h3>Reports Page</h3>
-            <h4>Products</h4>
-            <div id="products-get-all-button" class="button">Get All</div>
-            <div id="products-get-specific-button" class="button">Get Specific</div>
-            <div id="products-post-button" class="button">Add New</div>
-            <div id="products-put-button" class="button">Update Existing</div>
-            <div id="products-delete-button" class="button">Delete Existing</div>
-            <br/>
-            <h4>Ingredients</h4>
-            <div id="ingredients-get-all-button" class="button">Get All</div>
-            <div id="ingredients-get-specific-button" class="button">Get Specific</div>
-            <div id="ingredients-post-button" class="button">Add New</div>
-            <div id="ingredients-put-button" class="button">Update Existing</div>
-            <div id="ingredients-delete-button" class="button">Delete Existing</div>
+            <div class="content-container">
+                <div class="body-column">
+                    <h4>Products</h4>
+                    <div id="products-get-all-button" class="button">Get All</div>
+                    <div id="products-get-specific-button" class="button">Get Specific</div>
+                    <div class="inner-report-section">
+                        <label for="search-product-id">ID:</label>
+                        <input type="text" name="search-product-id" id="search-product-id"/>
+                        <br/>
+                        <label for="search-product-name">Name:</label>
+                        <input type="text" name="search-product-name" id="search-product-name"/>
+                        <br/>
+                        <label for="search-product-quantity">Quantity:</label>
+                        <input type="text" name="search-product-quantity" id="search-product-quantity"/>
+                        <br/>
+                        <label for="search-product-price">Price:</label>
+                        <input type="text" name="search-product-price" id="search-product-price"/>
+                        <br/>
+                        <label for="search-product-category">Category:</label>
+                        <select name="search-product-category" id="search-product-category">
+                            <option value=""></option>
+                            <option value="BATHROOM_APPLIANCES">Bathroom Appliances</option>
+                            <option value="BEAUTY">Beauty</option>
+                            <option value="BOOKS">Books</option>
+                            <option value="CLOTHING">Clothing</option>
+                            <option value="DRINK">Drink</option>
+                            <option value="ELECTRONICS">Electronics</option>
+                            <option value="FOOD">Food</option>
+                            <option value="SPORTS">Sports</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                        <br/>
+                        <label for="search-product-product-reference">Product reference:</label>
+                        <input type="text" name="search-product-product-reference" id="search-product-product-reference"/>
+                    </div>
+                    <div id="products-put-button" class="button">Update Existing</div>
+                    <div class="inner-report-section">
+                        <label for="update-product-id">ID:</label>
+                        <input type="text" name="update-product-id" id="update-product-id"/>
+                        <h4>Please fill below with only updates</h4>
+                        <label for="update-product-name">Name:</label>
+                        <input type="text" name="update-product-name" id="update-product-name"/>
+                        <br/>
+                        <label for="update-product-quantity">Quantity:</label>
+                        <input type="text" name="update-product-quantity" id="update-product-quantity"/>
+                        <br/>
+                        <label for="update-product-price">Price:</label>
+                        <input type="text" name="update-product-price" id="update-product-price"/>
+                        <br/>
+                        <label for="update-product-category">Category:</label>
+                        <select name="update-product-category" id="update-product-category">
+                            <option value=""></option>
+                            <option value="BATHROOM_APPLIANCES">Bathroom Appliances</option>
+                            <option value="BEAUTY">Beauty</option>
+                            <option value="BOOKS">Books</option>
+                            <option value="CLOTHING">Clothing</option>
+                            <option value="DRINK">Drink</option>
+                            <option value="ELECTRONICS">Electronics</option>
+                            <option value="FOOD">Food</option>
+                            <option value="SPORTS">Sports</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                        <br/>
+                        <label for="update-product-product-reference">Product reference:</label>
+                        <input type="text" name="update-product-product-reference" id="update-product-product-reference"/>
+                    </div>
+                    <div id="products-delete-button" class="button">Delete Existing</div>
+                    <div class="inner-report-section">
+                        <label for="delete-product-id">ID:</label>
+                        <input type="text" name="delete-product-id" id="delete-product-id"/>
+                    </div>
+                </div>
+                <div class="body-column">
+                    <h4>Report Output</h4>
+                    <div id="report-output">Report output will display here</div>
+                </div>
+                <div class="body-column">
+                    <h4>Ingredients</h4>
+                    <div id="ingredients-get-all-button" class="button">Get All</div>
+                    <div id="ingredients-get-specific-button" class="button">Get Specific</div>
+                    <div class="inner-report-section">
+                        <label for="search-ingredient-id">ID:</label>
+                        <input type="text" name="search-ingredient-id" id="search-ingredient-id"/>
+                        <br/>
+                        <label for="search-ingredient-product-reference">Product reference:</label>
+                        <input type="text" name="search-ingredient-product-reference" id="search-ingredient-product-reference"/>
+                        <br/>
+                        <label for="search-ingredient-name">Name:</label>
+                        <input type="text" name="search-ingredient-name" id="search-ingredient-name"/>
+                        <br/>
+                        <label for="search-ingredient-quantity">Quantity:</label>
+                        <input type="text" name="search-ingredient-quantity" id="search-ingredient-quantity"/>
+                        <br/>
+                        <label for="search-ingredient-price">Price:</label>
+                        <input type="text" name="search-ingredient-price" id="search-ingredient-price"/>
+                    </div>
+                    <div id="ingredients-post-button" class="button">Add New</div>
+                    <div class="inner-report-section">
+                        <label for="post-ingredient-product-reference">Product reference:</label>
+                        <input type="text" name="post-ingredient-product-reference" id="post-ingredient-product-reference"/>
+                        <br/>
+                        <label for="post-ingredient-name">Name:</label>
+                        <input type="text" name="post-ingredient-name" id="post-ingredient-name"/>
+                        <br/>
+                        <label for="post-ingredient-quantity">Quantity:</label>
+                        <input type="text" name="post-ingredient-quantity" id="post-ingredient-quantity"/>
+                        <br/>
+                        <label for="post-ingredient-price">Price:</label>
+                        <input type="text" name="post-ingredient-price" id="post-ingredient-price"/>
+                    </div>
+                    <div id="ingredients-put-button" class="button">Update Existing</div>
+                    <div class="inner-report-section">
+                        <label for="update-ingredient-id">ID:</label>
+                        <input type="text" name="update-ingredient-id" id="update-ingredient-id"/>
+                        <h4>Please fill below with only updates</h4>
+                        <label for="update-ingredient-product-reference">Product reference:</label>
+                        <input type="text" name="update-ingredient-product-reference" id="update-ingredient-product-reference"/>
+                        <br/>
+                        <label for="update-ingredient-name">Name:</label>
+                        <input type="text" name="update-ingredient-name" id="update-ingredient-name"/>
+                        <br/>
+                        <label for="update-ingredient-quantity">Quantity:</label>
+                        <input type="text" name="update-ingredient-quantity" id="update-ingredient-quantity"/>
+                        <br/>
+                        <label for="update-ingredient-price">Price:</label>
+                        <input type="text" name="update-ingredient-price" id="update-ingredient-price"/>
+                    </div>
+                    <div id="ingredients-delete-button" class="button">Delete Existing</div>
+                    <div class="inner-report-section">
+                        <label for="delete-ingredient-id">ID:</label>
+                        <input type="text" name="delete-ingredient-id" id="delete-ingredient-id"/>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- FOOTER CONTENT -->
@@ -35,5 +156,5 @@
             <div id="report-bug-button" class="button">Report Bug</div>
         </div>
     </body>
-    <script type="text/javascript" src="./source.js" defer></script>
+    <script type="module" type="text/javascript" src="./source.js" defer></script>
 </html>
